@@ -1,0 +1,10 @@
+SELECT title
+FROM Movies m
+JOIN (
+    SELECT movie_id, AVG(rating) AS avg_rating
+    FROM MovieRating
+    WHERE created_at BETWEEN '20200201' AND '20200229'
+    GROUP BY movie_id
+    ORDER BY avg_rating DESC, movie_id ASC
+    LIMIT 1
+) t ON m.movie_id = t.movie_id;
