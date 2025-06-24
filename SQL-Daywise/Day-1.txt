@@ -1,0 +1,355 @@
+use organization;
+CREATE TABLE employee (
+    EMPLOYEE_ID INT PRIMARY KEY,
+    FIRST_NAME VARCHAR(50),
+    LAST_NAME VARCHAR(50),
+    EMAIL VARCHAR(50),
+    PHONE_NUMBER VARCHAR(20),
+    HIRE_DATE DATE,
+    JOB_ID VARCHAR(20),
+    SALARY DECIMAL(10, 2),
+    COMMISSION_PCT DECIMAL(5, 2),
+    MANAGER_ID INT,
+    DEPARTMENT_ID INT
+);
+
+INSERT INTO employee VALUES 
+(100, 'Steven', 'King', 'SKING', '515.123.4567', '1987-06-17', 'AD_PRES', 24000.00, 0.00, 0, 90),
+(101, 'Neena', 'Kochhar', 'NKOCHHAR', '515.123.4568', '1987-06-18', 'AD_VP', 17000.00, 0.00, 100, 90),
+(102, 'Lex', 'De Haan', 'LDEHAAN', '515.123.4569', '1987-06-19', 'AD_VP', 17000.00, 0.00, 100, 90),
+(103, 'Alexander', 'Hunold', 'AHUNOLD', '590.423.4567', '1987-06-20', 'IT_PROG', 9000.00, 0.00, 102, 60),
+(104, 'Bruce', 'Ernst', 'BERNST', '590.423.4568', '1987-06-21', 'IT_PROG', 6000.00, 0.00, 103, 60),
+(105, 'David', 'Austin', 'DAUSTIN', '590.423.4569', '1987-06-22', 'IT_PROG', 4800.00, 0.00, 103, 60),
+(106, 'Valli', 'Pataballa', 'VPATABAL', '590.423.4560', '1987-06-23', 'IT_PROG', 4800.00, 0.00, 103, 60),
+(107, 'Diana', 'Lorentz', 'DLORENTZ', '590.423.5567', '1987-06-24', 'IT_PROG', 4200.00, 0.00, 103, 60),
+(108, 'Nancy', 'Greenberg', 'NGREENBE', '515.124.4569', '1987-06-25', 'FI_MGR', 12000.00, 0.00, 101, 100),
+(109, 'Daniel', 'Faviet', 'DFAVIET', '515.124.4169', '1987-06-26', 'FI_ACCOUNT', 9000.00, 0.00, 108, 100),
+(110, 'John', 'Chen', 'JCHEN', '515.124.4269', '1987-06-27', 'FI_ACCOUNT', 8200.00, 0.00, 108, 100),
+(111, 'Ismael', 'Sciarra', 'ISCIARRA', '515.124.4369', '1987-06-28', 'FI_ACCOUNT', 7700.00, 0.00, 108, 100),
+(112, 'Jose Manuel', 'Urman', 'JMURMAN', '515.124.4469', '1987-06-29', 'FI_ACCOUNT', 7800.00, 0.00, 108, 100),
+(113, 'Luis', 'Popp', 'LPOPP', '515.124.4567', '1987-06-30', 'FI_ACCOUNT', 6900.00, 0.00, 108, 100),
+(114, 'Den', 'Raphaely', 'DRAPHEAL', '515.127.4561', '1987-07-01', 'PU_MAN', 11000.00, 0.00, 100, 30);
+
+CREATE TABLE department (
+    DEPARTMENT_ID INT PRIMARY KEY,
+    DEPARTMENT_NAME VARCHAR(100),
+    MANAGER_ID INT,
+    LOCATION_ID INT
+);
+INSERT INTO department (DEPARTMENT_ID, DEPARTMENT_NAME, MANAGER_ID, LOCATION_ID) VALUES
+(10, 'Administration', 200, 1700),
+(20, 'Marketing', 201, 1800),
+(30, 'Purchasing', 114, 1700),
+(40, 'Human Resources', 203, 2400),
+(50, 'Shipping', 121, 1500);
+
+
+select concat(first_name,'',last_name),employee.department_id from
+employee 
+join department 
+on employee.department_id=department.department_id;
+
+
+CREATE TABLE job_history (
+    employee_id INT,
+    start_date DATE,
+    end_date DATE,
+    job_id VARCHAR(20),
+    department_id INT
+);
+
+INSERT INTO job_history (employee_id, start_date, end_date, job_id, department_id) VALUES
+(102, '1993-01-13', '1998-07-24', 'IT_PROG', 60),
+(101, '1989-09-21', '1993-10-27', 'AC_ACCOUNT', 110),
+(101, '1993-10-28', '1997-03-15', 'AC_MGR', 110),
+(201, '1996-02-17', '1999-12-19', 'MK_REP', 20),
+(114, '1998-03-24', '1999-12-31', 'ST_CLERK', 50),
+(122, '1999-01-01', '1999-12-31', 'ST_CLERK', 50),
+(200, '1987-09-17', '1993-06-17', 'AD_ASST', 90),
+(176, '1998-03-24', '1998-12-31', 'SA_REP', 80),
+(176, '1999-01-01', '1999-12-31', 'SA_MAN', 80),
+(200, '1994-07-01', '1998-12-31', 'AC_ACCOUNT', 90);
+
+
+CREATE TABLE jobs (
+    job_id VARCHAR(20) PRIMARY KEY,
+    job_title VARCHAR(100),
+    min_salary INT,
+    max_salary INT
+);
+INSERT INTO jobs (job_id, job_title, min_salary, max_salary) VALUES
+('AD_PRES', 'President', 20000, 40000),
+('AD_VP', 'Administration Vice President', 15000, 30000),
+('AD_ASST', 'Administration Assistant', 3000, 6000),
+('FI_MGR', 'Finance Manager', 8200, 16000);
+
+SELECT 
+    jobh.employee_id,
+    jo.job_title,
+    TIMESTAMPDIFF(DAY, jobh.start_date, jobh.end_date) AS days_worked
+FROM 
+    job_history jobh
+JOIN 
+    jobs jo ON jobh.job_id = jo.job_id
+WHERE 
+    jobh.department_id = 90;
+    
+    
+-- Write a MySQL query to find the name (first_name, last_name) and the salary of the employees 
+-- who have a higher salary than the employee whose last_name='Bull'.
+SELECT CONCAT(first_name, ' ', last_name) AS full_name, salary
+FROM employee
+WHERE salary > (
+    SELECT salary
+    FROM employee
+    WHERE last_name = 'Bull'
+);
+
+-- Write a MySQL query to find the name (first_name, last_name) of all employees who works in the IT department.
+select concat(first_name,' ',last_name) as full_name from employee e
+join 
+department d
+on e.department_id=d.department_id
+where d.department_name='IT';
+
+
+CREATE TABLE location (
+    location_id INT PRIMARY KEY,
+    street_address VARCHAR(100),
+    postal_code VARCHAR(20),
+    city VARCHAR(50),
+    state_province VARCHAR(50),
+    country_id CHAR(2)
+);
+
+
+INSERT INTO location (location_id, street_address, postal_code, city, state_province, country_id) VALUES
+(1000, '1297 Via Cola di Rie', '989', 'Roma', NULL, 'IT'),
+(1100, '93091 Calle della Te', '10934', 'Venice', NULL, 'IT'),
+(1200, '2017 Shinjuku-ku', '1689', 'Tokyo', 'Tokyo Prefectu', 'JP'),
+(1300, '9450 Kamiya-cho', '6823', 'Hiroshima', NULL, 'JP'),
+(1400, '2014 Jabberwocky Rd', '26192', 'Southlake', 'Texas', 'US');
+INSERT INTO location (location_id, street_address, postal_code, city, state_province, country_id) VALUES
+(1500, '2011 Interiors Blvd', '99236', 'South San', 'California', 'US'),
+(1600, '2007 Zagora St', '50090', 'South Brun', 'New Jersey', 'US'),
+(1700, '2004 Charade Rd', '98199', 'Seattle', 'Washington', 'US'),
+(1800, '147 Spadina Ave', 'M5V 2L7', 'Toronto', 'Ontario', 'CA'),
+(1900, '6092 Boxwood St', 'YSW 9T2', 'Whitehorse', 'Yukon', 'CA'),
+(2000, '40-5-12 Laogianggen', '190518', 'Beijing', NULL, 'CN'),
+(2100, '1298 Vileparle (E)', '490231', 'Bombay', 'Maharashtra', 'IN'),
+(2200, '12-98 Victoria Stree', '2901', 'Sydney', 'New South Wale', 'AU'),
+(2300, '198 Clementi North', '540198', 'Singapore', NULL, 'SG'),
+(2400, '8204 Arthur St', NULL, 'London', NULL, 'UK'),
+(2500, 'Magdalen Centre, The', 'OX9 9ZB', 'Oxford', 'Oxford', 'UK'),
+(2600, '9702 Chester Road', '9629850293', 'Stretford', 'Manchester', 'UK'),
+(2700, 'Schwanthalerstr. 703', '80925', 'Munich', 'Bavaria', 'DE'),
+(2800, 'Rua Frei Caneca 1360', '01307-002', 'Sao Paulo', 'Sao Paulo', 'BR'),
+(2900, '20 Rue des Corps-Sai', '1730', 'Geneva', 'Geneve', 'CH'),
+(3000, 'Murtenstrasse 921', '3095', 'Bern', 'BE', 'CH'),
+(3100, 'Pieter Breughelstraa', '3029SK', 'Utrecht', 'Utrecht', 'NL'),
+(3200, 'Mariano Escobedo 999', '11932', 'Mexico Cit', 'Distrito Feder', 'MX');
+
+
+SELECT e.first_name, e.last_name
+FROM employee e
+JOIN department d ON e.department_id = d.department_id
+JOIN location l ON d.location_id = l.location_id
+WHERE e.manager_id IS NOT NULL
+  AND l.country_id = 'US';
+  
+  
+CREATE TABLE country (
+  country_id CHAR(2) PRIMARY KEY,
+  country_name VARCHAR(50),
+  region_id INT
+);
+
+INSERT INTO country (country_id, country_name, region_id) VALUES
+('AR', 'Argentina', 2),
+('AU', 'Australia', 3),
+('BE', 'Belgium', 1),
+('BR', 'Brazil', 2),
+('CA', 'Canada', 2);
+
+select l.location_id, l.street_address, l.city, l.state_province, c.country_name 
+from location l 
+inner join 
+country c 
+on l.country_id = c.country_id;
+
+-- Write a MySQL query to use EXPLAIN to analyze the performance of a
+-- SELECT query retrieving all orders placed after a specific date from the Orders table
+
+EXPLAIN
+SELECT *
+FROM Orders
+WHERE order_date > '2023-01-01';
+
+CREATE TABLE OCCUPATIONS (
+    Name VARCHAR(50),
+    Occupation VARCHAR(20)
+);
+INSERT INTO OCCUPATIONS (Name, Occupation) VALUES
+('Samantha', 'Doctor'),
+('Julia', 'Actor'),
+('Maria', 'Actor'),
+('Meera', 'Singer'),
+('Ashley', 'Professor'),
+('Ketty', 'Professor'),
+('Christeen', 'Professor'),
+('Jane', 'Actor'),
+('Jenny', 'Doctor'),
+('Priya', 'Singer');
+
+SELECT
+    MAX(CASE WHEN Occupation = 'Doctor' THEN Name END) AS Doctor,
+    MAX(CASE WHEN Occupation = 'Professor' THEN Name END) AS Professor,
+    MAX(CASE WHEN Occupation = 'Singer' THEN Name END) AS Singer,
+    MAX(CASE WHEN Occupation = 'Actor' THEN Name END) AS Actor
+FROM (
+    SELECT 
+        Name, 
+        Occupation,
+        ROW_NUMBER() OVER (PARTITION BY Occupation ORDER BY Name) AS rn
+    FROM OCCUPATIONS
+) AS ranked
+GROUP BY rn;
+
+
+CREATE TABLE EMPLOYEE_NEW(
+    EMPNO INT PRIMARY KEY,
+    ENAME VARCHAR(50),
+    DEPT VARCHAR(50),
+    SALARY INT,
+    COMM INT
+);
+
+INSERT INTO EMPLOYEE_NEW (EMPNO, ENAME, DEPT, SALARY, COMM) VALUES
+(1, 'ANKIT', 'HR', 20000, 1200),
+(2, 'SUJEET', 'ACCOUNTS', 24000, 2400),
+(3, 'VIJAY', 'HR', 28000, 2000),
+(4, 'NITIN', 'SALES', 18000, 3000),
+(5, 'VIKRAM', 'SALES', 22000, 1700);
+
+ -- Display names starting from ‘V’ in ascending salary order:
+
+SELECT ENAME 
+FROM EMPLOYEE_NEW 
+WHERE ENAME LIKE 'V%' 
+ORDER BY SALARY ASC;
+
+-- Display details of SALES employees earning more than 20000:
+
+SELECT * 
+FROM EMPLOYEE_NEW
+WHERE DEPT = 'SALES' AND SALARY > 20000;
+
+
+-- Count distinct departments:
+
+SELECT COUNT(DISTINCT DEPT) AS DeptCount 
+FROM EMPLOYEE_NEW;
+
+-- Update NITIN’s salary from 18000 to 20000:
+
+UPDATE EMPLOYEE_NEW 
+SET SALARY = 20000 
+WHERE ENAME = 'NITIN';
+
+-- Insert a new row: 6, 'SUMIT', 'HR', 40000, 2000
+
+INSERT INTO EMPLOYEE_NEW (EMPNO, ENAME, DEPT, SALARY, COMM) 
+VALUES (6, 'SUMIT', 'HR', 40000, 2000);
+
+-- Get average commission:
+
+SELECT AVG(COMM) AS AvgCommission 
+FROM EMPLOYEE_NEW;
+
+
+-- Select ENAME and DEPT where department is HR or ACCOUNTS:
+
+SELECT ENAME, DEPT 
+FROM EMPLOYEE_NEW 
+WHERE DEPT IN ('HR', 'ACCOUNTS');
+
+-- Select ENAME and salary incremented by 100 as NEWSAL:
+
+SELECT ENAME, SALARY + 100 AS NEWSAL 
+FROM EMPLOYEE_NEW;
+
+
+CREATE TABLE ACCOUNT (
+    ANO INT PRIMARY KEY,
+    ANAME VARCHAR(100),
+    ADDRESS VARCHAR(100)
+);
+INSERT INTO ACCOUNT (ANO, ANAME, ADDRESS) VALUES
+(101, 'Nirja Singh', 'Bangalore'),
+(102, 'Rohan Gupta', 'Chennai'),
+(103, 'Ali Reza', 'Hyderabad'),
+(104, 'Rishabh Jain', 'Chennai'),
+(105, 'Simran Kaur', 'Chandigarh');
+
+CREATE TABLE TRANSACT (
+    TRNO VARCHAR(10) PRIMARY KEY,
+    ANO INT,
+    AMOUNT INT,
+    TYPE VARCHAR(20),
+    DOT DATE,
+    FOREIGN KEY (ANO) REFERENCES ACCOUNT(ANO)
+);
+INSERT INTO TRANSACT (TRNO, ANO, AMOUNT, TYPE, DOT) VALUES
+('T001', 101, 2500, 'Withdraw', '2017-12-21'),
+('T002', 103, 3000, 'Deposit', '2017-06-01'),
+('T003', 102, 2000, 'Withdraw', '2017-05-12'),
+('T004', 103, 1000, 'Deposit', '2017-10-22'),
+('T005', 102, 12000, 'Deposit', '2017-11-06');
+
+ -- 1 Transactions of TYPE 'Withdraw'
+SELECT * FROM TRANSACT
+WHERE TYPE = 'Withdraw';
+
+-- 2 ANO and AMOUNT of all transactions in May 2017
+
+SELECT ANO, AMOUNT FROM TRANSACT
+WHERE MONTH(DOT) = 5 AND YEAR(DOT) = 2017;
+
+-- 3 First transaction date (DOT) for ANO = 102
+SELECT MIN(DOT) AS First_Transaction_Date
+FROM TRANSACT
+WHERE ANO = 102;
+
+ -- 4 ANO, ANAME, AMOUNT, DOT for people who transacted ≤ 3000
+SELECT A.ANO, A.ANAME, T.AMOUNT, T.DOT
+FROM ACCOUNT A
+JOIN TRANSACT T ON A.ANO = T.ANO
+WHERE T.AMOUNT <= 3000;
+
+ -- 5 ANO, ANAME where address not in 'CHENNAI', 'BANGALORE'
+
+SELECT ANO, ANAME FROM ACCOUNT
+WHERE ADDRESS NOT IN ('CHENNAI', 'BANGALORE');
+
+--  6 DISTINCT ANO and MIN(AMOUNT) from TRANSACT
+
+SELECT DISTINCT ANO, MIN(AMOUNT) AS MINAMOUNT
+FROM TRANSACT
+GROUP BY ANO;
+
+-- Write a query to print all prime numbers less than or equal to . 
+-- Print your result on a single line, and use the ampersand () character as your separator (instead of a space).
+WITH RECURSIVE numbers AS (
+  SELECT 2 AS num
+  UNION ALL
+  SELECT num + 1 FROM numbers WHERE num + 1 <= 10
+),
+primes AS (
+  SELECT num FROM numbers n
+  WHERE NOT EXISTS (
+    SELECT 1 FROM numbers d
+    WHERE d.num < n.num AND d.num > 1 AND n.num % d.num = 0
+  )
+)
+SELECT GROUP_CONCAT(num SEPARATOR '&') AS prime_numbers
+FROM primes;

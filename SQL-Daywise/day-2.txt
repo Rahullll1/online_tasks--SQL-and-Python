@@ -1,0 +1,19 @@
+-- Query to Fetch Duplicate Employee 
+SELECT first_name, last_name, email, COUNT(*) AS dup_count
+FROM employee
+GROUP BY first_name, last_name, email
+HAVING COUNT(*) > 1;
+
+
+-- Find Second Highest Salary with Employee Details
+
+SELECT *
+FROM employee
+WHERE salary = (
+    SELECT MAX(salary)
+    FROM employee
+    WHERE salary < (
+        SELECT MAX(salary)
+        FROM employee
+    )
+);
